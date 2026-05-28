@@ -1,4 +1,4 @@
-import { addDays, daysInclusive, diffDays, isBetween, todayIso } from "./dateUtils";
+import { addDays, daysInclusive, diffDays, isDateInRange, todayIso } from "./dateUtils";
 import type { CyclePrediction, DailyLog, PeriodRecord, PhaseName } from "./types";
 
 export function createId() {
@@ -126,8 +126,8 @@ export function getPhaseForDate(
   ovulationWindowStart?: string | null,
   ovulationWindowEnd?: string | null,
 ): PhaseName {
-  if (records.some((record) => isBetween(date, record.startDate, record.endDate))) return "月经期";
-  if (nextPeriodStart && nextPeriodEnd && isBetween(date, nextPeriodStart, nextPeriodEnd)) return "月经期";
+  if (records.some((record) => isDateInRange(date, record.startDate, record.endDate))) return "月经期";
+  if (nextPeriodStart && nextPeriodEnd && isDateInRange(date, nextPeriodStart, nextPeriodEnd)) return "月经期";
   if (ovulationDate && date === ovulationDate) return "排卵日";
 
   const latestPeriod = [...sortedPeriods(records)].reverse().find((record) => record.endDate < date);

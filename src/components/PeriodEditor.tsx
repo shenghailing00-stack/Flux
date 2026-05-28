@@ -25,6 +25,7 @@ function createDraft(): PeriodRecord {
 export function PeriodEditor({ records, onSave }: PeriodEditorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState<PeriodRecord>(() => createDraft());
+  const [message, setMessage] = useState("");
   const latest = [...records].sort((a, b) => b.startDate.localeCompare(a.startDate))[0];
 
   function openNewRecord() {
@@ -38,6 +39,7 @@ export function PeriodEditor({ records, onSave }: PeriodEditorProps) {
       endDate: draft.endDate < draft.startDate ? draft.startDate : draft.endDate,
     };
     onSave([...records, nextRecord].sort((a, b) => a.startDate.localeCompare(b.startDate)));
+    setMessage("月经记录已保存");
     setIsOpen(false);
   }
 
@@ -58,6 +60,7 @@ export function PeriodEditor({ records, onSave }: PeriodEditorProps) {
           新增月经记录
         </button>
       </div>
+      {message && <p className="mt-3 rounded-lg bg-sageSoft/70 px-3 py-2 text-sm text-ink">{message}</p>}
 
       {isOpen && (
         <div className="fixed inset-0 z-30 overflow-y-auto bg-ink/25 px-4 py-6 backdrop-blur-sm">

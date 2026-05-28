@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getBodySignalPhaseStats } from "../bodySignals";
 import { DISCLAIMER, WEEKDAYS } from "../constants";
-import { addDays, formatZhDate, getMonthDays, isBetween, monthKey, toIso } from "../dateUtils";
+import { formatZhDate, getMonthDays, isDateInRange, monthKey, toIso } from "../dateUtils";
 import {
   getCyclePrediction,
   getPhaseStats,
@@ -33,6 +33,23 @@ export function CalendarAnalysis({
   const topSymptoms = useMemo(() => getTopSymptoms(dailyLogs), [dailyLogs]);
   const phaseStats = useMemo(() => getPhaseStats(dailyLogs, periodRecords), [dailyLogs, periodRecords]);
   const bodySignalPhaseStats = useMemo(() => getBodySignalPhaseStats(dailyLogs, periodRecords), [dailyLogs, periodRecords]);
+  const hasRecordedPeriodInCurrentMonth = useMemo(
+    () =>
+      days.some((date) => {
+        const iso = toIso(date);
+        return date.getMonth() === month.getMonth() && periodRecords.some((record) => isDateInRange(iso, record.startDate, record.endDate));
+      }),
+    [days, month, periodRecords],
+  );
+
+  useEffect(() => {
+    if (periodRecords.length > 0 && !hasRecordedPeriodInCurrentMonth) {
+      console.warn("Flux: periodRecords exists, but no recorded period is visible in the current calendar month.", {
+        month: monthKey(month),
+        periodRecords,
+      });
+    }
+  }, [hasRecordedPeriodInCurrentMonth, month, periodRecords]);
 
   function shiftMonth(offset: number) {
     setMonth(new Date(month.getFullYear(), month.getMonth() + offset, 1));
@@ -60,19 +77,19 @@ export function CalendarAnalysis({
           {days.map((date) => {
             const iso = toIso(date);
             const isCurrentMonth = date.getMonth() === month.getMonth();
-            const inRecordedPeriod = periodRecords.some((record) => isBetween(iso, record.startDate, record.endDate));
+            const inRecordedPeriod = periodRecords.some((record) => isDateInRange(iso, record.startDate, record.endDate));
             const inPredictedPeriod = Boolean(
               prediction.nextPeriodStart &&
                 prediction.averagePeriodLength &&
                 prediction.nextPeriodEnd &&
-                isBetween(iso, prediction.nextPeriodStart, prediction.nextPeriodEnd),
+                isDateInRange(iso, prediction.nextPeriodStart, prediction.nextPeriodEnd),
             );
             const isOvulationDay = prediction.ovulationDate === iso;
             const isFallbackWindow = prediction.predictionMode === "fallback";
             const inOvulationWindow = Boolean(
               prediction.ovulationWindowStart &&
                 prediction.ovulationWindowEnd &&
-                isBetween(iso, prediction.ovulationWindowStart, prediction.ovulationWindowEnd),
+                isDateInRange(iso, prediction.ovulationWindowStart, prediction.ovulationWindowEnd),
             );
             const phase = getPhaseForDate(
               iso,
@@ -118,6 +135,11 @@ export function CalendarAnalysis({
           <Legend color="bg-[#DDD1C5]" label="黄体期" />
           <Legend border label="参考/预测排卵窗口" />
         </div>
+        {periodRecords.length > 0 && !hasRecordedPeriodInCurrentMonth && (
+          <p className="mt-4 rounded-lg border border-warm bg-white/55 px-3 py-2 text-xs leading-relaxed text-muted">
+            已检测到本地有 {periodRecords.length} 条月经记录，但当前月份没有日期落入已记录经期。请切换月份，或检查记录的开始/结束日期。
+          </p>
+        )}
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
@@ -218,7 +240,7 @@ function getCalendarPhaseClass({
       ? " border-2 border-dashed border-sage/80"
       : " border-2 border-dashed border-blue/70"
     : "";
-  if (inRecordedPeriod) return `border-rose bg-[#E6B8B5]/85${windowClass}`;
+  if (inRecordedPeriod) return "border-rose bg-[#DFAAA7] text-ink shadow-sm";
   if (inPredictedPeriod) return `border-2 border-dashed border-rose bg-[#F0D7D5]/80`;
   if (isOvulationDay) return `bg-sageSoft/95 ring-2 ring-sage/80 shadow-sm${windowClass}`;
   if (phase === "卵泡期") return `border-sage/70 bg-sageSoft/70${windowClass}`;

@@ -44,6 +44,24 @@ export function Settings({ periodRecords, dailyLogs, onImportData, onResetData }
     setMessage("本地数据已清空。");
   }
 
+  async function refreshAppCache() {
+    try {
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.update()));
+      }
+
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+
+      setMessage("应用缓存已刷新。若页面仍异常，请关闭后重新打开 Flux。");
+    } catch {
+      setMessage("无法自动刷新缓存。若页面异常，请清除浏览器缓存后重新打开 Flux。");
+    }
+  }
+
   return (
     <div className="space-y-4">
       <section className="card p-5">
@@ -79,6 +97,13 @@ export function Settings({ periodRecords, dailyLogs, onImportData, onResetData }
           </button>
           <button type="button" onClick={reset} className="rounded-lg border border-rose bg-roseSoft px-4 py-2 text-sm font-semibold text-ink">
             清空数据
+          </button>
+          <button
+            type="button"
+            onClick={() => void refreshAppCache()}
+            className="rounded-lg border border-blue bg-blueSoft px-4 py-2 text-sm font-semibold text-ink"
+          >
+            刷新应用缓存 / 检查更新
           </button>
           <input
             ref={fileInputRef}

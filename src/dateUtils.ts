@@ -5,6 +5,10 @@ export function todayIso() {
 }
 
 export function toIso(date: Date) {
+  return formatLocalDate(date);
+}
+
+export function formatLocalDate(date: Date) {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, "0");
   const day = `${date.getDate()}`.padStart(2, "0");
@@ -12,7 +16,11 @@ export function toIso(date: Date) {
 }
 
 export function parseIso(iso: string) {
-  const [year, month, day] = iso.split("-").map(Number);
+  return parseLocalDate(iso);
+}
+
+export function parseLocalDate(dateString: string) {
+  const [year, month, day] = dateString.split("-").map(Number);
   return new Date(year, month - 1, day);
 }
 
@@ -31,7 +39,20 @@ export function daysInclusive(startIso: string, endIso: string) {
 }
 
 export function isBetween(date: string, start: string, end: string) {
-  return date >= start && date <= end;
+  return isDateInRange(date, start, end);
+}
+
+export function isSameDate(a: string | Date, b: string | Date) {
+  const dateA = typeof a === "string" ? parseLocalDate(a) : a;
+  const dateB = typeof b === "string" ? parseLocalDate(b) : b;
+  return formatLocalDate(dateA) === formatLocalDate(dateB);
+}
+
+export function isDateInRange(date: string | Date, startDate: string | Date, endDate: string | Date) {
+  const target = typeof date === "string" ? formatLocalDate(parseLocalDate(date)) : formatLocalDate(date);
+  const start = typeof startDate === "string" ? formatLocalDate(parseLocalDate(startDate)) : formatLocalDate(startDate);
+  const end = typeof endDate === "string" ? formatLocalDate(parseLocalDate(endDate)) : formatLocalDate(endDate);
+  return target >= start && target <= end;
 }
 
 export function formatZhDate(iso: string | null) {
