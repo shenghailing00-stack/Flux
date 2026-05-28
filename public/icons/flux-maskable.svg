@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Flux maskable icon">
+  <rect width="512" height="512" fill="#F6F1EA"/>
+  <circle cx="256" cy="256" r="168" fill="#E8D4D1"/>
+  <path d="M143 276c45-94 161-119 224-43 22 27 29 62 18 96-31-47-87-74-143-63-41 8-76 31-99 10Z" fill="#9AAEBC"/>
+  <path d="M166 328c50 53 134 60 193 17-24 60-94 95-161 69-40-16-68-47-83-83 16 5 34 4 51-3Z" fill="#A7B8A4"/>
+  <text x="256" y="298" text-anchor="middle" font-family="Avenir Next, Segoe UI, sans-serif" font-size="148" font-weight="700" fill="#514C48">F</text>
+</svg>
