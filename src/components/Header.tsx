@@ -15,7 +15,7 @@ export function Header({ activeView, onChangeView }: HeaderProps) {
   return (
     <header className="flex flex-col gap-4">
       <div>
-        <p className="text-sm text-muted">Go with you flow</p>
+        <p className="text-sm text-muted">Go with your flow</p>
         <h1 className="text-3xl font-semibold tracking-normal text-ink">Flux</h1>
       </div>
       <nav className="grid grid-cols-3 rounded-lg border border-white/80 bg-paper/75 p-1 shadow-sm">
